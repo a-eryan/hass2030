@@ -1,6 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## HASS 2030
+
+Static website for virtual frames for incoming School of Humanities, Arts and Social Sciences (HASS) class of 2030 students.
 
 First, run the development server:
 
