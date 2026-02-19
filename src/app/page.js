@@ -42,7 +42,10 @@ export default function Home() {
       const canvas = await createFrame(imageFile, frameType);
       const blob = await canvas.convertToBlob({ type: 'image/png' });
       const url = URL.createObjectURL(blob);
-      setPreviewUrl(url);
+      setPreviewUrl(prev => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      }); //free memory by revoking old object URL when creating a new one
     } catch (err) {
       setError(err.message || 'Error creating frame. Please try again.');
     } finally {
@@ -122,15 +125,14 @@ export default function Home() {
           </li>
           <li>
             <a href="https://www.youtube.com/@HASSatStevens" target="_blank" rel="noopener noreferrer" className="font-extra font-bold text-white text-2xl">
-              <Image src="/youtube-hass.svg" alt="YouTube Icon" width={28} height={28} /> {/*rendered width of 28x28 is 28px width by 19.38 px height, giving us a ratio of approx. ratio of 1:0.692 width:height.  */}
+              <Image src="/youtube-hass.svg" alt="YouTube Icon" width={40.46} height={28} /> {/*rendered width of 28x28 is 28px width by 19.38 px height, giving us a ratio of approx. ratio of 1:0.692 width:height.  */}
             </a>
-
           </li>
         </ul>
       </nav>
       <main className="p-4">
         <h1 className="text-7xl text-center p-2">Welcome HASS Class of 2030!</h1>
-        <p>Show your HASS spirit with a custom frame, ranging from professionalism to creativity. Your data has no data stored or shared with any third parties.</p>
+        <p>Show your HASS spirit with a custom frame, ranging from professionalism to creativity. Your photos are not collected or shared with Stevens Institute of Technology or any third parties.</p>
         {error && <p className="text-red-500">{error}</p>}
       <div className="flex ">
         {previewUrl && (
@@ -141,12 +143,13 @@ export default function Home() {
           </div>
         )}        
         <form onChange={handleFrameCreation}>
-          <input type = "file" name = "image" accept="image/*" required />
+          <label htmlFor="image" className="flex p-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2  outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center">CHOOSE YOUR PHOTO</label>
+          <input id="image" type = "file" name = "image" accept="image/*" required className="hidden"/>
           <div className="flex flex-wrap gap-4 mt-4">
             {framesSrc.map((src, index) => (
               <label key={index} className="relative">
-                <Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={200} height={200} className="rounded-full" />
-                <input type="radio" name="frame" value={src.split('/').pop()} required disabled={frameRequestInProgress} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={200} height={200} className="rounded-full cursor-pointer hover:bg-medium-gold" />
+                <input type="radio" name="frame" value={src.split('/').pop()} required disabled={frameRequestInProgress} className="hidden" />
               </label>
             ))}
           </div>
@@ -155,12 +158,6 @@ export default function Home() {
       </main>
       <footer className="bg-dark-gray text-light-gray p-4 flex flex-col gap-2 mt-4">
         <p>&copy;  2026 Stevens Institute of Technology</p>
-        <a href="https://www.stevens.edu/school-humanities-arts-and-social-sciences" target="_blank" rel="noopener noreferrer">
-          Learn more about HASS at Stevens Institute of Technology
-        </a>
-        <a href="https://www.instagram.com/hassatstevens/" target="_blank" rel="noopener noreferrer">
-          Follow us on Instagram
-        </a>
       </footer>
     </>
   );

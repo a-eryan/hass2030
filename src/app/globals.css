@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #000;
+  --color-stevens-red: #A32638;
+  --color-stevens-gray: #7F7F7F;
+  --color-dark-gray: #363D45;
+  --color-light-gray: #E4E5E6;
+  --color-medium-gold: #EBC73B;
 }
 
 @theme inline {
@@ -12,6 +17,7 @@
   --font-extra: var(--font-saira-extra-condensed);
   --font-bitter: var(--font-bitter);
   --color-stevens-red: #A32638;
+  --color-stevens-gray: #7F7F7F;
   --color-dark-gray: #363D45;
   --color-light-gray: #E4E5E6;
   --color-medium-gold: #EBC73B;
