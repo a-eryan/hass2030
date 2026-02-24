@@ -29,7 +29,7 @@ export default function Home() {
     const imageFile = formData.get('image');
     const frameType = formData.get('frame');
 
-    if (!imageFile || imageFile.size === 0 || !frameType) return;
+    if (!imageFile || imageFile.size === 0) return;
 
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(imageFile.type)) {
@@ -38,6 +38,7 @@ export default function Home() {
     }
     setError(null);
     setFrameRequestInProgress(true);
+
     try {
       const canvas = await createFrame(imageFile, frameType);
       const blob = await canvas.convertToBlob({ type: 'image/png' });
@@ -63,12 +64,13 @@ export default function Home() {
       const img = new window.Image(); //create empty <img> element to load and decode the uploaded image file, which allows us to check dimensions and draw to canvas
 
       //event handlers for image loading and errors, once the image is loaded and decoded 
-      img.onload = (e) => { //once the image is loaded and decoded, we can check dimensions and draw to canvas
+      img.onload = async (e) => { //once the image is loaded and decoded, we can check dimensions and draw to canvas
         clearTimeout(timeout);
         if (img.width > 2000 || img.height > 2000) {
           reject(new Error('Image dimensions are too large. Please upload an image smaller than 2000x2000 pixels.'));
           return;
         }
+
         const canvas = new OffscreenCanvas(2000, 2000);
         const ctx = canvas.getContext('2d');
 
@@ -81,13 +83,28 @@ export default function Home() {
           x,y,size,size, //source cropping to square
           0,0,2000,2000 //destination scaling to 2000x2000
         );
+
+        //given the scaled user image is now drawn to the canvas, we can create a preview URL for the user pre frame
+        const previewBlob = await canvas.convertToBlob({ type: 'image/png' }); //takes snapshot of current canvas state and encodes it as a PNG blob
+        setPreviewUrl(prev => {
+          if (prev) URL.revokeObjectURL(prev);
+          return URL.createObjectURL(previewBlob);
+        });
+
+        //file selected, no frame yet case
+        if (!frameType) {
+          resolve(canvas);
+          return;
+        }
+
         const frameImg = new window.Image()
         frameImg.onload = () => {
           ctx.drawImage(frameImg, 0, 0, 2000, 2000);
           resolve(canvas); // resolve with the canvas so handleFrameCreation can convert it
         }
+
         frameImg.onerror = () => reject(new Error('Frame load failed'))
-        frameImg.src = `/frames/${frameType}.png`; //provide the frame as src attribute 
+        frameImg.src = `/frames/${frameType}.png`; //provide the frame as src attribute
       };
       img.onerror = () => {
         clearTimeout(timeout);
@@ -97,7 +114,7 @@ export default function Home() {
     });
   }
   return (
-    <>
+    <div className="min-h-dvh flex flex-col">
       <nav className="bg-stevens-red">
         <ul className="flex gap-10 p-4 justify-center items-center object-contain">
           <li>
@@ -130,25 +147,30 @@ export default function Home() {
           </li>
         </ul>
       </nav>
-      <main className="p-4">
+      <main className="p-4 flex-1">
         <h1 className="text-7xl text-center p-2">Welcome HASS Class of 2030!</h1>
         <p>Show your HASS spirit with a custom frame, ranging from professionalism to creativity. Your photos are not collected or shared with Stevens Institute of Technology or any third parties.</p>
         {error && <p className="text-red-500">{error}</p>}
       <div className="flex ">
         {previewUrl && (
-          <div>
-            <h2>Your Frame Preview:</h2>
+          <div className="bg-stevens-red flex flex-col items-center gap-7 p-4 ">
+            <h2 className="text-5xl text-white">Your Frame Preview:</h2>
             <img src={previewUrl} alt="Frame Preview" className="rounded-full max-h-96" />
-            <a href={previewUrl} download="hass_frame.png" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download Frame</a>
+            {frameRequestInProgress ? ( 
+              <button disabled className="cursor-not-allowed p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center">Processing...</button>
+            ) : (
+              <a href={previewUrl} download="hass_frame.png" className="flex cursor-pointer p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0 hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">Download Frame</a>
+            )
+            }
           </div>
         )}        
         <form onChange={handleFrameCreation}>
-          <label htmlFor="image" className="flex p-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2  outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center">CHOOSE YOUR PHOTO</label>
+          <label htmlFor="image" className="flex p-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2 outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0  hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">SELECT YOUR PHOTO</label>
           <input id="image" type = "file" name = "image" accept="image/*" required className="hidden"/>
           <div className="flex flex-wrap gap-4 mt-4">
             {framesSrc.map((src, index) => (
-              <label key={index} className="relative">
-                <Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={200} height={200} className="rounded-full cursor-pointer hover:bg-medium-gold" />
+              <label key={index} className="cursor-pointer hover:scale-110 transition-transform">
+                <Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={200} height={200} className="rounded-full cursor-pointer" />
                 <input type="radio" name="frame" value={src.split('/').pop()} required disabled={frameRequestInProgress} className="hidden" />
               </label>
             ))}
@@ -156,9 +178,9 @@ export default function Home() {
         </form>
       </div>
       </main>
-      <footer className="bg-dark-gray text-light-gray p-4 flex flex-col gap-2 mt-4">
+      <footer className="bg-dark-gray text-light-gray p-4 flex flex-col gap-2 h-full">
         <p>&copy;  2026 Stevens Institute of Technology</p>
       </footer>
-    </>
+    </div>
   );
 }
