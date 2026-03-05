@@ -8,6 +8,7 @@
   --color-dark-gray: #363D45;
   --color-light-gray: #E4E5E6;
   --color-medium-gold: #EBC73B;
+  --color-dark-blue: #004380;
 }
 
 @theme inline {
@@ -21,6 +22,7 @@
   --color-dark-gray: #363D45;
   --color-light-gray: #E4E5E6;
   --color-medium-gold: #EBC73B;
+  --color-dark-blue: #004380;
 
 }
 
