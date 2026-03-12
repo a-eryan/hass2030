@@ -100,49 +100,49 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
   }	
 	return (
 <form onSubmit={handleFrameCreation}>
-					<input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={frameRequestInProgress} onChange={(e) => { fileRef.current = e.target.files?.[0] ?? null; e.target.form?.requestSubmit(); }} />
-					<div className="flex items-center justify-center">
-						<label htmlFor="image" className="flex p-4 mb-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2 outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0  hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]" accept="image/jpeg,image/png,image/webp">
-							SELECT YOUR PHOTO
-						</label>
-					</div>
-					{error && <p className="text-red-500 text-center">{error}</p>}
-					<div className="[background:linear-gradient(rgba(163,38,56,.70),rgba(163,38,56,.90))_center/cover_no-repeat,url('/17-008_Stevens_441_16903__1_.jpg')_center/cover_no-repeat] flex flex-row  h-full w-full items-start justify-center gap-4 p-4">
-						<div className="flex flex-wrap gap-4 align-center justify-center border-r-2 border-light-gray pr-2">
-							{framesSrc.slice(0, 7).map((src, index) => (
-								<label key={index} className="cursor-pointer xl:w-50  hover:scale-105 transition-transform  ">
-									<Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={220} height={220} className=" 2xl:w-full rounded-full cursor-pointer bg-stevens-gray" />
-									<input type="radio" name="frame" value={src.split('/').pop()} disabled={frameRequestInProgress} className="hidden" onChange={(e) => e.target.form?.requestSubmit()} />
-								</label>
-							))}
+		<input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={frameRequestInProgress} onChange={(e) => { fileRef.current = e.target.files?.[0] ?? null; e.target.form?.requestSubmit(); }} />
+		<div className="flex items-center justify-center">
+			<label htmlFor="image" className="flex p-4 mb-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2 outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0  hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]" accept="image/jpeg,image/png,image/webp">
+				SELECT YOUR PHOTO
+			</label>
+		</div>
+		{error && <p className="text-red-500 text-center">{error}</p>}
+		<div className="[background:linear-gradient(rgba(163,38,56,.70),rgba(163,38,56,.90))_center/cover_no-repeat,url('/17-008_Stevens_441_16903__1_.jpg')_center/cover_no-repeat] flex flex-row  h-full w-full items-start justify-center gap-4 p-4">
+			<div className="flex flex-wrap gap-4 align-center justify-center border-r-2 border-light-gray pr-2">
+				{framesSrc.slice(0, 7).map((src, index) => (
+					<label key={index} className="cursor-pointer xl:w-50  hover:scale-105 transition-transform  ">
+						<Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={220} height={220} className=" 2xl:w-full rounded-full cursor-pointer bg-stevens-gray" />
+						<input type="radio" name="frame" value={src.split('/').pop()} disabled={frameRequestInProgress} className="hidden" onChange={(e) => e.target.form?.requestSubmit()} />
+					</label>
+				))}
+			</div>
+			<div className="flex flex-1 self-stretch flex-col items-center justify-center gap-4 p-4 ">
+				<h2 className="text-5xl text-white text-center">Your Frame Preview:</h2>
+					{previewUrl ? (
+					<img src={previewUrl} alt="Frame Preview" className="rounded-full max-h-48 bg-background" />
+					) : (
+						<div className="w-48 h-48 rounded-full bg-light-gray flex items-center justify-center">
+							<span className="text-center font-bitter">Your framed photo will appear here</span>
 						</div>
-						<div className="flex flex-1 self-stretch flex-col items-center justify-center gap-4 p-4 ">
-							<h2 className="text-5xl text-white text-center">Your Frame Preview:</h2>
-								{previewUrl ? (
-								<img src={previewUrl} alt="Frame Preview" className="rounded-full max-h-48 bg-background" />
-								) : (
-									<div className="w-48 h-48 rounded-full bg-light-gray flex items-center justify-center">
-										<span className="text-center font-bitter">Your framed photo will appear here</span>
-									</div>
-									)
-									}
-							{/*The text-, bg-, and border- Tailwind utilities work because Tailwind inlines their values at compile time. The outline-color utility apparently doesn't get that treatment.*/}
-								{frameRequestInProgress ? (
-									<button disabled className="cursor-not-allowed p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center">Processing...</button>
-									) : (
-									<a href={previewUrl} download="hass_frame.png" className="flex cursor-pointer p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0 hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">
-									DOWNLOAD FRAME</a>
-									)}
-						</div>
-						<div className="flex flex-wrap gap-4 align-center justify-center border-l-2 border-light-gray pl-2 ">
-							{framesSrc.slice(7, 15).map((src, index) => (
-								<label key={index} className="cursor-pointer  xl:w-50  hover:scale-105 transition-transform ">
-									<Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={220} height={220} className=" 2xl:w-full rounded-full cursor-pointer bg-stevens-gray"/>
-									<input type="radio" name="frame" value={src.split('/').pop()} disabled={frameRequestInProgress} className="hidden" onChange={(e) => e.target.form?.requestSubmit()} />
-								</label>
-							))}
-						</div>
-					</div>
-				</form>
+						)
+						}
+				{/*The text-, bg-, and border- Tailwind utilities work because Tailwind inlines their values at compile time. The outline-color utility apparently doesn't get that treatment.*/}
+					{frameRequestInProgress ? (
+						<button disabled className="cursor-not-allowed p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center">Processing...</button>
+						) : (
+						<a href={previewUrl} download="hass_frame.png" className="flex cursor-pointer p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0 hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">
+						DOWNLOAD FRAME</a>
+						)}
+			</div>
+			<div className="flex flex-wrap gap-4 align-center justify-center border-l-2 border-light-gray pl-2 ">
+				{framesSrc.slice(7, 15).map((src, index) => (
+					<label key={index} className="cursor-pointer  xl:w-50  hover:scale-105 transition-transform ">
+						<Image src={`${src}.png`} alt={`Frame ${index + 1} Preview`} width={220} height={220} className=" 2xl:w-full rounded-full cursor-pointer bg-stevens-gray"/>
+						<input type="radio" name="frame" value={src.split('/').pop()} disabled={frameRequestInProgress} className="hidden" onChange={(e) => e.target.form?.requestSubmit()} />
+					</label>
+				))}
+			</div>
+		</div>
+	</form>
 	)
 }

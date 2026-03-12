@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ComputerForm from "./components/ComputerForm";
+import MobileForm from "./components/MobileForm";
 
 const framesSrc = [
   "/frames/HASS-2030-Frame-1",
@@ -21,15 +22,27 @@ const framesSrc = [
 ]
 
 export default function Home() {
+  const [viewportIsMobile, setViewportIsMobile] = useState(false); 
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      console.log('Viewport is mobile, loading mobile frames');
+      setViewportIsMobile(true);
+    } else {
+      setViewportIsMobile(false);
+      console.log('Viewport is desktop, loading desktop frames');
+    }
+
+  }, [viewportIsMobile]) //empty dependency array to run once on mount and not on subsequent re-renders, since we only need to check viewport size once when the component mounts to determine which frames to load and render, and we don't need to re-check on every render since the user would need to refresh the page for the viewport size to change significantly enough to warrant loading a different set of frames (e.g. mobile vs desktop). This also avoids unnecessary re-renders and potential infinite loops that could occur if we included viewportStatus in the dependency array and updated it within the effect, which would cause the effect to run again on every update of viewportStatus.
+
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="bg-stevens-red">
-        <ul className="flex gap-10 p-4 justify-center items-center object-contain">
+        <ul className="flex gap-4 md:gap-10 p-4 justify-center items-center object-contain">
           <li>
             <Image src="/stevens-hass-logo-small.svg" alt="HASS Logo" width={70} height={70} />
           </li>
           <li className="ml-auto">
-            <a href="https://www.stevens.edu/hass" target="_blank" rel="noopener noreferrer" className="font-extra font-bold text-white text-2xl">
+            <a href="https://www.stevens.edu/hass" target="_blank" rel="noopener noreferrer" className="block font-extra font-bold text-white md:text-2xl text-center">
               HASS MAIN WEBSITE
             </a>
           </li>
@@ -59,7 +72,8 @@ export default function Home() {
       <main className="flex flex-col flex-1  mb-4">
         <h1 className="text-7xl text-center p-2 mt-4">Welcome HASS Class of 2030!</h1>
         <p className="p-2 m-4  text-center">Show your HASS spirit with a custom frame, ranging from professionalism to creativity. Your photos are not collected or shared with Stevens Institute of Technology or any third parties.</p>
-        <ComputerForm framesSrc={framesSrc} />
+        {viewportIsMobile ? <MobileForm framesSrc={framesSrc} /> : <ComputerForm framesSrc={framesSrc} />}
+       
       </main>
       <footer className="bg-dark-gray text-light-gray p-4 gap-4">
         <p>&copy;  2026 Stevens Institute of Technology</p>
