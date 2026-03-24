@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 export default function ComputerForm({framesSrc}) {
 	const [error, setError] = useState(null);
   const [frameRequestInProgress, setFrameRequestInProgress] = useState(false);
+  const [framedImageReady, setFramedImageReady] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null)
   const fileRef = useRef(null);
 
@@ -33,6 +34,7 @@ export default function ComputerForm({framesSrc}) {
         if (prev) URL.revokeObjectURL(prev);
         return url;
       }); //free memory by revoking old object URL when creating a new one
+      setFramedImageReady(!!frameType);
     } catch (err) {
       setError(err.message || 'Error creating frame. Please try again.');
     } finally {
@@ -50,6 +52,7 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
 
       //event handlers for image loading and errors, once the image is loaded and decoded 
       img.onload = async (e) => { //once the image is loaded and decoded, we can check dimensions and draw to canvas
+        URL.revokeObjectURL(img.src); //free memory used by the object URL since we no longer need it after the image is loaded
         clearTimeout(timeout);
         if (img.width > 2000 || img.height > 2000) {
           reject(new Error('Image dimensions are too large. Please upload an image smaller than 2000x2000 pixels.'));
@@ -76,8 +79,7 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
           return URL.createObjectURL(previewBlob);
         });
 
-        //file selected, no frame yet case
-        if (!frameType) {
+        if (!frameType) { //parent function renders a preview of the user's image without a frame (no frame selected) 
           resolve(canvas);
           return;
         }
@@ -92,6 +94,7 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
         frameImg.src = `/frames/${frameType}.png`; //provide the frame as src attribute
       };
       img.onerror = () => {
+        URL.revokeObjectURL(img.src); //free memory used by the object URL since we no longer need it after the image load fails
         clearTimeout(timeout);
         reject(new Error('Error loading image file. Please try again.'));
       };
@@ -102,7 +105,7 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
 <form onSubmit={handleFrameCreation}>
 		<input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={frameRequestInProgress} onChange={(e) => { fileRef.current = e.target.files?.[0] ?? null; e.target.form?.requestSubmit(); }} />
 		<div className="flex items-center justify-center">
-			<label htmlFor="image" className="flex p-4 mb-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2 outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0  hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]" accept="image/jpeg,image/png,image/webp">
+			<label htmlFor="image" className="flex p-4 mb-3 h-15 w-49 cursor-pointer border-4 border-stevens-red outline-2 outline-solid outline-stevens-gray [outline-offset:-10px] font-extra font-bold text-xl text-stevens-red items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0  hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">
 				SELECT YOUR PHOTO
 			</label>
 		</div>
@@ -130,7 +133,7 @@ const createFrame = async (imageFile, frameType) => { //handle async operations 
 					{frameRequestInProgress ? (
 						<button disabled className="cursor-not-allowed p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center">Processing...</button>
 						) : (
-						<a href={previewUrl} download="hass_frame.png" className="flex cursor-pointer p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0 hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]">
+						<a href={framedImageReady ? previewUrl : undefined} download={framedImageReady ? "hass_frame.png" : undefined} className={`flex cursor-pointer p-3 h-15 w-49 border-4 border-medium-gold outline-2 outline-solid outline-light-gray [outline-offset:-10px] font-extra font-bold text-xl text-white items-center justify-center text-center ${framedImageReady ? 'cursor-pointer [transition:border-width_200ms_ease-in-out,outline_0s_0s] hover:border-10 hover:outline-0 hover:[transition:border-width_200ms_ease-in-out,outline_0s_200ms]' : 'cursor-not-allowed'}`}>
 						DOWNLOAD FRAME</a>
 						)}
 			</div>

@@ -13,8 +13,8 @@ const bitter = Bitter({
 });
 
 export const metadata = {
-  title: "HASS Class of 2030",
-  description: "Website dedicated to the School of Humanities, Arts and Social Sciences (HASS) class of 2030 at Stevens Institute of Technology. ",
+  title: "HASS Class of 2030 Profile Picture Frame Creator",
+  description: "Website dedicated to providing a multitude of profile picture frame options for the School of Humanities, Arts and Social Sciences (HASS) class of 2030 at Stevens Institute of Technology. ",
 };
 
 export default function RootLayout({ children }) {
